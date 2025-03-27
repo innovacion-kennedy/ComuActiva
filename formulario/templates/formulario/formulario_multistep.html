@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Formulario por pasos</title>
+    <link rel="stylesheet" href="{% static 'css/styles_multistep.css' %}" />
+    <style>
+      /* Estilos simplificados */
+      .wizard-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding: 0;
+        list-style: none;
+      }
+      .wizard-nav li {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-bottom: 4px solid lightgray;
+        font-weight: bold;
+        color: #6c757d;
+      }
+      .wizard-nav .active {
+        border-color: #0d6efd;
+        color: #0d6efd;
+        background-color: #e9f2ff;
+      }
+      .mensaje-final {
+        background-color: #d4edda;
+        border-left: 5px solid #28a745;
+        color: #155724;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+      .mensaje-final a {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 15px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2 class="text-center">Registro por pasos</h2>
+
+      <ul class="wizard-nav">
+        <li class="{% if paso == 0 %}active{% endif %}">1. Participante</li>
+        <li class="{% if paso == 1 %}active{% endif %}">
+          2. Datos Complementarios
+        </li>
+        <li class="{% if paso == 2 %}active{% endif %}">3. Acudiente</li>
+        <li class="{% if paso == 3 %}active{% endif %}">4. Curso</li>
+      </ul>
+
+      {% with paso_actual=paso|add:1 %} {% if paso_actual == 1 %}
+      <p class="text-center fw-bold">🧩 Paso 1 de 4: Participante</p>
+      {% elif paso_actual == 2 %}
+      <p class="text-center fw-bold">🧩 Paso 2 de 4: Datos Complementarios</p>
+      {% elif paso_actual == 3 %}
+      <p class="text-center fw-bold">🧩 Paso 3 de 4: Acudiente</p>
+      {% elif paso_actual == 4 %}
+      <p class="text-center fw-bold">🧩 Paso 4 de 4: Curso</p>
+      {% endif %} {% endwith %} {% if messages %}
+      <div>
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %} {% if form.non_field_errors %}
+        <div class="error">{{ form.non_field_errors }}</div>
+        {% endif %} {% for field in form.visible_fields %}
+        <div class="form-group" style="margin-bottom: 1rem">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+          {% if field.field.widget|slugify == "checkboxselectmultiple" %}
+          <div>
+            {% for checkbox in field %}
+            <label>
+              <input
+                type="checkbox"
+                name="{{ checkbox.name }}"
+                value="{{ checkbox.choice_value }}"
+                {%
+                if
+                checkbox.choice_value
+                in
+                checkbox.data
+                %}checked{%
+                endif
+                %}
+              />
+              {{ checkbox.choice_label }} </label
+            ><br />
+            {% endfor %}
+          </div>
+
+          {% elif field.field.widget.input_type == "checkbox" %}
+          <input
+            type="checkbox"
+            name="{{ field.name }}"
+            id="{{ field.id_for_label }}"
+            {%
+            if
+            field.value
+            %}checked{%
+            endif
+            %}
+          />
+
+          {% elif field.field.widget.input_type == "select" or
+          field.field.widget|slugify == "selectmultiple" %}
+          <select
+            name="{{ field.name }}"
+            id="{{ field.id_for_label }}"
+            {%
+            if
+            field.field.widget.attrs.multiple
+            %}multiple{%
+            endif
+            %}
+          >
+            {% for option in field.field.choices %}
+            <option
+              value="{{ option.0 }}"
+              {%
+              if
+              option.0
+              in
+              field.value
+              %}selected{%
+              endif
+              %}
+              data-group="{{ option.0|lower }}"
+            >
+              {{ option.1 }}
+            </option>
+            {% endfor %}
+          </select>
+
+          {% else %}
+          <input
+            type="{{ field.field.widget.input_type }}"
+            name="{{ field.name }}"
+            id="{{ field.id_for_label }}"
+            value="{{ field.value|default_if_none:'' }}"
+          />
+          {% endif %} {% if field.errors %}
+          <div class="text-danger">{{ field.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <div
+          class="form-navigation"
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+          "
+        >
+          {% if paso > 0 %}
+          <a href="?paso={{ paso|add:'-1' }}" class="btn-atras">⬅ Atrás</a>
+          {% endif %}
+          <button type="submit" class="btn-siguiente">
+            {% if paso == 3 %} Finalizar {% else %} Siguiente ➡ {% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {% if paso == 3 %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const tipoCurso = document.getElementById("id_tipo_curso");
+        const disciplinaSelect = document.getElementById("id_disciplina");
+
+        const mapping = {
+          Deporte: ["Microfutbol", "Futbol", "Basketball", "Voleibol"],
+          Cultura: ["Danza", "Baile", "Fotografía", "Pintura"],
+        };
+
+        function filtrarDisciplinas() {
+          const tipo = tipoCurso.value;
+          const permitidas = mapping[tipo] || [];
+
+          Array.from(disciplinaSelect.options).forEach((option) => {
+            option.style.display = permitidas.includes(option.value)
+              ? "block"
+              : "none";
+          });
+
+          if (!permitidas.includes(disciplinaSelect.value)) {
+            disciplinaSelect.value = "";
+          }
+        }
+
+        if (tipoCurso && disciplinaSelect) {
+          tipoCurso.addEventListener("change", filtrarDisciplinas);
+          filtrarDisciplinas();
+        }
+      });
+    </script>
+    {% endif %}
+  </body>
+</html>
