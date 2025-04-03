@@ -1,0 +1,299 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Datos Complementarios</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <h2 class="text-center text-primary">Datos Complementarios</h2>
+
+      {% if messages %}
+      <div class="mt-3">
+        {% for message in messages %}
+        <div
+          class="alert alert-{{ message.tags }} alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% if form.errors %}
+      <div class="alert alert-danger">
+        <strong>Se encontraron errores:</strong>
+        <ul>
+          {% for field, errors in form.errors.items %}
+          <li><strong>{{ field|capfirst }}:</strong> {{ errors|join:", " }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <div class="card p-4 shadow">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label
+              for="{{ form.identidad_genero.id_for_label }}"
+              class="form-label"
+            >
+              Identidad de Género:
+            </label>
+            {{ form.identidad_genero }}
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.grupo_etnico.id_for_label }}"
+              class="form-label"
+            >
+              Grupo Étnico:
+            </label>
+            {{ form.grupo_etnico }}
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.discapacidad.id_for_label }}"
+              class="form-label"
+            >
+              ¿Posee alguna discapacidad?
+            </label>
+            {{ form.discapacidad }}
+          </div>
+
+          <div class="mb-3" id="tipo_discapacidad_div" style="display: none">
+            <label
+              for="{{ form.tipo_discapacidad.id_for_label }}"
+              class="form-label"
+            >
+              Tipo de Discapacidad:
+            </label>
+            {{ form.tipo_discapacidad }}
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.enfermedad_huerfana.id_for_label }}"
+              class="form-label"
+            >
+              ¿Tiene usted alguna enfermedad huérfana?
+            </label>
+            {{ form.enfermedad_huerfana }}
+          </div>
+
+          <div class="mb-3" id="enfermedad_nombre_div" style="display: none">
+            <label
+              for="{{ form.enfermedad_nombre.id_for_label }}"
+              class="form-label"
+            >
+              Si es sí, ¿Cuál?
+            </label>
+            {{ form.enfermedad_nombre }}
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.conflicto_armado.id_for_label }}"
+              class="form-label"
+            >
+              ¿Es víctima del conflicto armado?
+            </label>
+            {{ form.conflicto_armado }}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.tipo_sangre.id_for_label }}" class="form-label">
+              Tipo de Sangre:
+            </label>
+            {{ form.tipo_sangre }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Seleccione su nivel académico:</label>
+            <div class="row row-cols-1 row-cols-md-2 g-1">
+              {% for checkbox in form.nivel_educativo %}
+              <div class="form-check col">
+                {{ checkbox.tag }}
+                <label
+                  class="form-check-label"
+                  for="{{ checkbox.id_for_label }}"
+                >
+                  {{ checkbox.choice_label }}
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-3" id="otro_nivel_educativo_div" style="display: none">
+            <label
+              for="{{ form.otro_nivel_educativo.id_for_label }}"
+              class="form-label"
+            >
+              Si seleccionó "Otro", especifique:
+            </label>
+            {{ form.otro_nivel_educativo }}
+          </div>
+
+          <div class="mb-3">
+            <label
+              for="{{ form.pertenece_organizacion.id_for_label }}"
+              class="form-label"
+            >
+              ¿Pertenece a alguna organización social, comunitaria o junta de
+              acción comunal?
+            </label>
+            {{ form.pertenece_organizacion }}
+          </div>
+
+          <div class="mb-3" id="nombre_organizacion_div" style="display: none">
+            <label
+              for="{{ form.nombre_organizacion.id_for_label }}"
+              class="form-label"
+            >
+              Si es sí, indique el nombre de la organización:
+            </label>
+            {{ form.nombre_organizacion }}
+          </div>
+
+          <div class="d-flex justify-content-between mt-3">
+            <a
+              href="{% url 'formulario_participante' %}"
+              class="btn btn-secondary"
+              >← Atrás</a
+            >
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ SCRIPT PARA OCULTAR/MOSTRAR CAMPOS SEGÚN RESPUESTA -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function toggleVisibility(selectElement, targetDiv, extraInput = null) {
+          if (
+            selectElement.value === "True" ||
+            selectElement.value === "Sí" ||
+            selectElement.value === "Otro"
+          ) {
+            targetDiv.style.display = "block";
+          } else {
+            targetDiv.style.display = "none";
+            if (extraInput) extraInput.value = ""; // Limpiar si se oculta
+          }
+        }
+
+        // ✅ Discapacidad
+        const selectDiscapacidad = document.getElementById(
+          "{{ form.discapacidad.auto_id }}"
+        );
+        const tipoDiscapacidadDiv = document.getElementById(
+          "tipo_discapacidad_div"
+        );
+        const tipoDiscapacidadSelect = document.getElementById(
+          "{{ form.tipo_discapacidad.auto_id }}"
+        );
+        selectDiscapacidad.addEventListener("change", () =>
+          toggleVisibility(
+            selectDiscapacidad,
+            tipoDiscapacidadDiv,
+            tipoDiscapacidadSelect
+          )
+        );
+        toggleVisibility(
+          selectDiscapacidad,
+          tipoDiscapacidadDiv,
+          tipoDiscapacidadSelect
+        );
+
+        // ✅ Enfermedad Huérfana
+        const selectEnfermedad = document.getElementById(
+          "{{ form.enfermedad_huerfana.auto_id }}"
+        );
+        const enfermedadNombreDiv = document.getElementById(
+          "enfermedad_nombre_div"
+        );
+        const inputEnfermedadNombre = document.getElementById(
+          "{{ form.enfermedad_nombre.auto_id }}"
+        );
+        selectEnfermedad.addEventListener("change", () =>
+          toggleVisibility(
+            selectEnfermedad,
+            enfermedadNombreDiv,
+            inputEnfermedadNombre
+          )
+        );
+        toggleVisibility(
+          selectEnfermedad,
+          enfermedadNombreDiv,
+          inputEnfermedadNombre
+        );
+
+        // ✅ Organización social
+        const selectOrganizacion = document.getElementById(
+          "{{ form.pertenece_organizacion.auto_id }}"
+        );
+        const nombreOrganizacionDiv = document.getElementById(
+          "nombre_organizacion_div"
+        );
+        const inputNombreOrganizacion = document.getElementById(
+          "{{ form.nombre_organizacion.auto_id }}"
+        );
+        selectOrganizacion.addEventListener("change", () =>
+          toggleVisibility(
+            selectOrganizacion,
+            nombreOrganizacionDiv,
+            inputNombreOrganizacion
+          )
+        );
+        toggleVisibility(
+          selectOrganizacion,
+          nombreOrganizacionDiv,
+          inputNombreOrganizacion
+        );
+
+        // ✅ Manejo de nivel académico con checkboxes
+        const checkboxes = document.querySelectorAll(
+          "input[name='nivel_educativo']"
+        );
+        const otroNivelDiv = document.getElementById(
+          "otro_nivel_educativo_div"
+        );
+        const inputOtroNivel = document.getElementById(
+          "{{ form.otro_nivel_educativo.auto_id }}"
+        );
+
+        function toggleOtroNivel() {
+          otroNivelDiv.style.display = [...checkboxes].some(
+            (checkbox) => checkbox.checked && checkbox.value === "Otro"
+          )
+            ? "block"
+            : "none";
+          if (!otroNivelDiv.style.display) inputOtroNivel.value = "";
+        }
+
+        checkboxes.forEach((checkbox) =>
+          checkbox.addEventListener("change", toggleOtroNivel)
+        );
+        toggleOtroNivel();
+      });
+    </script>
+  </body>
+</html>

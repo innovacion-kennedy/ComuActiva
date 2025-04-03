@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: url("{% static 'images/fondo.jpg' %}") no-repeat center
+          center fixed;
+        background-size: cover;
+        color: white;
+      }
+      .header {
+        background-color: #d6001c;
+        color: white;
+        padding: 15px 20px;
+        position: relative;
+        border-bottom: 4px solid #ffc107;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .header img {
+        height: 60px;
+        margin-right: 15px;
+      }
+      .header-text {
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: bold;
+      }
+      .header h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      .container h1 {
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 30px;
+        color: black;
+      }
+      .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        background-color: #ffc107;
+        padding: 20px;
+        border-radius: 10px;
+        width: fit-content;
+        margin: 0 auto;
+      }
+      .button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .button img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        background: white;
+        padding: 10px;
+        border-radius: 10px;
+        transition: transform 0.3s ease-in-out;
+      }
+      .button img:hover {
+        transform: scale(1.1);
+      }
+      .button-text {
+        margin-top: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+      }
+      .link-container {
+        margin-top: 20px;
+      }
+      a {
+        color: white;
+        font-size: 18px;
+        text-decoration: none;
+        font-weight: bold;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 15px;
+        border-radius: 10px;
+      }
+      a:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" />
+      <div class="header-text">
+        <h1>ALCALDÍA LOCAL DE KENNEDY</h1>
+        <h2>Alcaldía Mayor de Bogotá D.C.</h2>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1>Tipo de usuario</h1>
+      <div class="buttons">
+        <div class="button">
+          <a href="{% url 'formulario_participante' %}">
+            <img
+              src="{% static 'images/participante.png' %}"
+              alt="Participante"
+            />
+          </a>
+          <div class="button-text">Participante</div>
+        </div>
+
+        <div class="button">
+          <a href="{% url 'formulario_docente' %}">
+            <img src="{% static 'images/docente.png' %}" alt="Docente" />
+          </a>
+          <div class="button-text">Docente</div>
+        </div>
+
+        <div class="button">
+          <a href="{% url 'consulta_participantes' %}">
+            <img src="{% static 'images/lupa.png' %}" alt="Consultas" />
+          </a>
+          <div class="button-text">Consultas</div>
+        </div>
+
+        <div class="button">
+          <a href="{% url 'crear_curso' %}">
+            <img src="{% static 'images/crearcurso.png' %}" alt="Curso" />
+          </a>
+          <div class="button-text">Curso</div>
+        </div>
+
+        {# ⚠️ Este botón necesita un participante_id. Por ahora, lo dejamos
+        comentado: #} {#
+        <div class="button">
+          <a href="{% url 'cargue_documento' 1 %}">
+            <!-- Aquí deberías poner el ID real -->
+            <img
+              src="{% static 'images/cargue.png' %}"
+              alt="Cargue Documento"
+            />
+          </a>
+          <div class="button-text">Cargue Documento</div>
+        </div>
+        #}
+      </div>
+
+      <div class="link-container">
+        <p><a href="{% url 'lista_proyectos' %}">Ver proyectos</a></p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Sistema Académico{% endblock %}</title>
+
+    <!-- Bootstrap y estilos globales -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="bg-light">
+    <!-- Navbar simple -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Sistema Académico</a>
+      </div>
+    </nav>
+
+    <main class="container py-4">{% block content %} {% endblock %}</main>
+
+    <!-- Scripts globales -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Mensajes con Toastr -->
+    <script>
+      {% if messages %}
+        {% for message in messages %}
+          toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            timeOut: 5000
+          };
+          toastr["{{ message.tags }}"]("{{ message|escapejs }}");
+        {% endfor %}
+      {% endif %}
+    </script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

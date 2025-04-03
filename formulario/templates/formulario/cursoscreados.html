@@ -1,0 +1,478 @@
+{% load widget_tweaks static %}
+
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crear Curso | Sistema Académico</title>
+
+    <!-- Preload critical resources -->
+    <link
+      rel="preload"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      as="style"
+    />
+    <link
+      rel="preload"
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+      as="style"
+    />
+    <link
+      rel="preload"
+      href="https://code.jquery.com/jquery-3.6.0.min.js"
+      as="script"
+    />
+
+    <!-- CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
+    />
+    <style>
+      :root {
+        --bs-primary-rgb: 13, 110, 253;
+        --bs-success-rgb: 25, 135, 84;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+      }
+      .card-header {
+        font-weight: 600;
+      }
+      .btn-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      [data-bs-theme="dark"] {
+        color-scheme: dark;
+        --bs-body-bg: #212529;
+        --bs-body-color: #f8f9fa;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container py-4">
+      <!-- Header -->
+      <header
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-4"
+      >
+        <h1 class="h3 mb-0 text-primary">
+          <span class="d-none d-md-inline">Gestión de Cursos</span>
+          <span class="d-md-none">Nuevo Curso</span>
+        </h1>
+        <div class="d-flex gap-2">
+          <a
+            href="{% url 'home' %}"
+            class="btn btn-outline-dark btn-icon"
+            title="Inicio"
+          >
+            <i class="fas fa-home"></i>
+          </a>
+          <a
+            href="{% url 'lista_cursos' %}"
+            class="btn btn-outline-secondary"
+            title="Ver todos los cursos"
+          >
+            <i class="fas fa-list me-1"></i>
+            <span class="d-none d-lg-inline">Lista de Cursos</span>
+          </a>
+          <button
+            class="btn btn-outline-dark btn-icon theme-toggle"
+            title="Cambiar tema"
+          >
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Alertas/Mensajes -->
+      {% if messages %}
+      <div id="messages-container">
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+              {% for message in messages %}
+              toastr.options = {
+                  closeButton: true,
+                  progressBar: true,
+                  positionClass: "toast-top-right",
+                  timeOut: 5000,
+                  extendedTimeOut: 2000
+              };
+              toastr["{{ message.tags }}"]("{{ message|escapejs }}");
+              {% endfor %}
+          });
+        </script>
+      </div>
+      {% endif %}
+
+      <!-- Formulario Principal -->
+      <main class="card shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+          <h2 class="h5 mb-0">Información del Curso</h2>
+        </div>
+
+        <div class="card-body">
+          <form
+            method="POST"
+            novalidate
+            class="needs-validation"
+            id="cursoForm"
+          >
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <!-- Tipo de Curso -->
+              <div class="col-md-6">
+                <label
+                  for="{{ form.tipo_curso.id_for_label }}"
+                  class="form-label fw-semibold"
+                >
+                  Tipo de Curso <span class="text-danger">*</span>
+                </label>
+                {{ form.tipo_curso|add_class:"form-select"|attr:"required" }}
+                <div class="invalid-feedback">
+                  {% if form.tipo_curso.errors %}{{ form.tipo_curso.errors.0
+                  }}{% else %}Seleccione un tipo de curso válido{% endif %}
+                </div>
+              </div>
+
+              <!-- Disciplina -->
+              <div class="col-md-6">
+                <label
+                  for="{{ form.disciplina.id_for_label }}"
+                  class="form-label fw-semibold"
+                >
+                  Disciplina <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  {{ form.disciplina|add_class:"form-select"|attr:"required" }}
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalDisciplina"
+                  >
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback">
+                  {% if form.disciplina.errors %}{{ form.disciplina.errors.0
+                  }}{% else %}Seleccione una disciplina válida{% endif %}
+                </div>
+              </div>
+
+              <!-- Horario -->
+              <div class="col-md-6">
+                <label
+                  for="{{ form.horario.id_for_label }}"
+                  class="form-label fw-semibold"
+                >
+                  Horario <span class="text-danger">*</span>
+                </label>
+                {{ form.horario|add_class:"form-control"|attr:"required" }}
+                <div class="invalid-feedback">
+                  {% if form.horario.errors %}{{ form.horario.errors.0 }}{% else
+                  %}Ingrese un horario válido{% endif %}
+                </div>
+              </div>
+
+              <!-- Lugar -->
+              <div class="col-md-6">
+                <label
+                  for="{{ form.lugar.id_for_label }}"
+                  class="form-label fw-semibold"
+                >
+                  Lugar <span class="text-danger">*</span>
+                </label>
+                {{ form.lugar|add_class:"form-control"|attr:"required" }}
+                <div class="invalid-feedback">
+                  {% if form.lugar.errors %}{{ form.lugar.errors.0 }}{% else
+                  %}Ingrese un lugar válido{% endif %}
+                </div>
+              </div>
+
+              <!-- Docente -->
+              <div class="col-12">
+                <label
+                  for="{{ form.docente.id_for_label }}"
+                  class="form-label fw-semibold"
+                >
+                  Docente Asignado <span class="text-danger">*</span>
+                </label>
+                {{ form.docente|add_class:"form-select"|attr:"required" }}
+                <div class="invalid-feedback">
+                  {% if form.docente.errors %}{{ form.docente.errors.0 }}{% else
+                  %}Seleccione un docente válido{% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+              <a
+                href="{% url 'lista_cursos' %}"
+                class="btn btn-outline-secondary"
+              >
+                <i class="fas fa-times me-2"></i> Cancelar
+              </a>
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i> Guardar Curso
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal Nueva Disciplina -->
+    <div
+      class="modal fade"
+      id="modalDisciplina"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Nueva Disciplina</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="formDisciplina" class="needs-validation" novalidate>
+              <div class="mb-3">
+                <label for="nombreDisciplina" class="form-label">Nombre</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nombreDisciplina"
+                  required
+                />
+                <div class="invalid-feedback" id="errorNombre">
+                  Por favor ingrese un nombre válido
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="tipoDisciplina" class="form-label">Tipo</label>
+                <select class="form-select" id="tipoDisciplina" required>
+                  <option value="">Seleccione tipo</option>
+                  <option value="Deporte">Deporte</option>
+                  <option value="Cultura">Cultura</option>
+                </select>
+                <div class="invalid-feedback">Seleccione un tipo válido</div>
+              </div>
+              <div class="d-grid gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-success"
+                  id="submitDisciplina"
+                >
+                  <span
+                    class="spinner-border spinner-border-sm d-none"
+                    role="status"
+                  ></span>
+                  <span class="btn-text">Guardar Disciplina</span>
+                </button>
+              </div>
+            </form>
+            <div
+              class="alert alert-success mt-3 mb-0 d-none"
+              id="disciplinaSuccess"
+            >
+              <i class="fas fa-check-circle me-2"></i> Disciplina creada
+              exitosamente
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts (optimizados con defer) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script defer>
+      // Tema oscuro/claro
+      document.addEventListener("DOMContentLoaded", () => {
+        const themeToggle = document.querySelector(".theme-toggle");
+        const html = document.documentElement;
+
+        // Verificar preferencia del usuario
+        const userPrefersDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const savedTheme =
+          localStorage.getItem("theme") || (userPrefersDark ? "dark" : "light");
+
+        // Aplicar tema guardado
+        html.setAttribute("data-bs-theme", savedTheme);
+        themeToggle.querySelector("i").className =
+          savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+
+        // Alternar tema
+        themeToggle.addEventListener("click", () => {
+          const newTheme =
+            html.getAttribute("data-bs-theme") === "dark" ? "light" : "dark";
+          html.setAttribute("data-bs-theme", newTheme);
+          localStorage.setItem("theme", newTheme);
+          themeToggle.querySelector("i").className =
+            newTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+        });
+
+        // Validación de formulario
+        const forms = document.querySelectorAll(".needs-validation");
+        forms.forEach((form) => {
+          form.addEventListener(
+            "submit",
+            (event) => {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+        });
+
+        // Manejo de disciplinas
+        const tipoCursoSelect = document.getElementById(
+          "{{ form.tipo_curso.id_for_label }}"
+        );
+        const disciplinaSelect = document.getElementById(
+          "{{ form.disciplina.id_for_label }}"
+        );
+        let ultimaDisciplinaId = null;
+
+        if (tipoCursoSelect) {
+          tipoCursoSelect.addEventListener("change", function () {
+            const tipo = this.value;
+            if (!tipo) return;
+
+            disciplinaSelect.disabled = true;
+            disciplinaSelect.innerHTML =
+              '<option value="">Cargando...</option>';
+
+            fetch(`{% url "obtener_disciplinas_por_tipo" %}?tipo=${tipo}`)
+              .then((response) => response.json())
+              .then((data) => {
+                disciplinaSelect.innerHTML = "";
+                data.forEach((item) => {
+                  const option = document.createElement("option");
+                  option.value = item.id;
+                  option.textContent = item.nombre;
+                  disciplinaSelect.appendChild(option);
+                });
+
+                if (ultimaDisciplinaId) {
+                  disciplinaSelect.value = ultimaDisciplinaId;
+                  ultimaDisciplinaId = null;
+                }
+                disciplinaSelect.disabled = false;
+              })
+              .catch(() => {
+                disciplinaSelect.innerHTML =
+                  '<option value="">Error al cargar</option>';
+              });
+          });
+        }
+
+        // Formulario de disciplina
+        const formDisciplina = document.getElementById("formDisciplina");
+        if (formDisciplina) {
+          formDisciplina.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const nombreInput = document.getElementById("nombreDisciplina");
+            const tipoSelect = document.getElementById("tipoDisciplina");
+            const errorField = document.getElementById("errorNombre");
+            const successAlert = document.getElementById("disciplinaSuccess");
+            const submitBtn = document.getElementById("submitDisciplina");
+            const spinner = submitBtn.querySelector(".spinner-border");
+            const btnText = submitBtn.querySelector(".btn-text");
+
+            // Validación
+            if (!nombreInput.value.trim() || !tipoSelect.value) {
+              formDisciplina.classList.add("was-validated");
+              return;
+            }
+
+            // Mostrar carga
+            spinner.classList.remove("d-none");
+            btnText.textContent = "Guardando...";
+            submitBtn.disabled = true;
+
+            // Enviar datos
+            fetch('{% url "crear_disciplina_ajax" %}', {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+              },
+              body: JSON.stringify({
+                nombre: nombreInput.value.trim(),
+                tipo: tipoSelect.value,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // Mostrar éxito
+                  successAlert.classList.remove("d-none");
+                  errorField.style.display = "none";
+                  ultimaDisciplinaId = data.id;
+
+                  // Resetear formulario
+                  formDisciplina.reset();
+                  formDisciplina.classList.remove("was-validated");
+
+                  // Actualizar tipo de curso
+                  if (tipoCursoSelect) {
+                    tipoCursoSelect.value = tipoSelect.value;
+                    tipoCursoSelect.dispatchEvent(new Event("change"));
+                  }
+
+                  // Cerrar modal después de 1.5 segundos
+                  setTimeout(() => {
+                    bootstrap.Modal.getInstance(
+                      document.getElementById("modalDisciplina")
+                    ).hide();
+                    successAlert.classList.add("d-none");
+                    toastr.success("Disciplina creada exitosamente");
+                  }, 1500);
+                } else {
+                  errorField.textContent = data.error || "Error desconocido";
+                  errorField.style.display = "block";
+                }
+              })
+              .catch((error) => {
+                errorField.textContent = "Error al procesar la solicitud";
+                errorField.style.display = "block";
+              })
+              .finally(() => {
+                spinner.classList.add("d-none");
+                btnText.textContent = "Guardar Disciplina";
+                submitBtn.disabled = false;
+              });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

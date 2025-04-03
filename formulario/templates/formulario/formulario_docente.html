@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Docente</title>
+    <link rel="stylesheet" href="{% static 'css/formulario_docente.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .inicio-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .inicio-container img {
+            width: 40px;
+            cursor: pointer;
+        }
+        h2 { color: red; }
+    </style>
+</head>
+<body class="bg-light">
+<div class="inicio-container">
+    <a href="{% url 'home' %}">
+        <img src="{% static 'images/inicio.png' %}" alt="Inicio">
+    </a>
+</div>
+
+<div class="container mt-5">
+    <h2 class="text-center">Registro de Inscripción de Docentes</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show">{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow p-4">
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Nombre Completo:</strong></label>
+                    {{ form.nombre }}
+                    <div class="text-danger">{{ form.nombre.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Documento de Identidad:</strong></label>
+                    {{ form.identificacion }}
+                    <div class="text-danger">{{ form.identificacion.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Correo Electrónico:</strong></label>
+                    {{ form.correo }}
+                    <div class="text-danger">{{ form.correo.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Teléfono de Contacto:</strong></label>
+                    {{ form.telefono }}
+                    <div class="text-danger">{{ form.telefono.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Dirección:</strong></label>
+                    {{ form.direccion }}
+                    <div class="text-danger">{{ form.direccion.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Fecha de Nacimiento:</strong></label>
+                    {{ form.fecha_nacimiento }}
+                    <div class="text-danger">{{ form.fecha_nacimiento.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" id="deporte"
+                       name="area_encargada" value="Deporte"
+                       {% if form.initial.area_encargada == "Deporte" or form.data.area_encargada == "Deporte" %}
+                           checked
+                       {% endif %}>
+                <label class="form-check-label" for="deporte">Deporte</label>
+              </div>
+              
+              <div class="form-check">
+                <input type="radio" class="form-check-input" id="cultura"
+                       name="area_encargada" value="Cultura"
+                       {% if form.initial.area_encargada == "Cultura" or form.data.area_encargada == "Cultura" %}
+                           checked
+                       {% endif %}>
+                <label class="form-check-label" for="cultura">Cultura</label>
+              </div>
+              
+                    <div class="text-danger">{{ form.area_encargada.errors }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"><strong>Disciplina:</strong></label>
+                    {{ form.disciplina }}
+                    <div class="text-danger">{{ form.disciplina.errors }}</div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="reset" class="btn btn-secondary">Limpiar</button>
+                <button type="submit" class="btn btn-danger">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const deporteRadio = document.getElementById("deporte");
+    const culturaRadio = document.getElementById("cultura");
+    const disciplinaSelect = document.getElementById("id_disciplina");
+
+    const disciplinas = {
+        Deporte: ["Microfutbol", "Futbol", "Basketball", "Voleibol"],
+        Cultura: ["Danza", "Baile", "Fotografía", "Pintura"]
+    };
+
+    function actualizarDisciplinas(areaSeleccionada) {
+        disciplinaSelect.innerHTML = "";
+        disciplinas[areaSeleccionada].forEach((disciplina) => {
+            let option = document.createElement("option");
+            option.value = disciplina;
+            option.text = disciplina;
+            disciplinaSelect.appendChild(option);
+        });
+    }
+
+    // Inicializa según radio seleccionado al cargar
+    if (deporteRadio.checked) actualizarDisciplinas("Deporte");
+    else if (culturaRadio.checked) actualizarDisciplinas("Cultura");
+
+    deporteRadio.addEventListener("change", () => actualizarDisciplinas("Deporte"));
+    culturaRadio.addEventListener("change", () => actualizarDisciplinas("Cultura"));
+});
+</script>
+</body>
+</html>
